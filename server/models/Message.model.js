@@ -1,16 +1,17 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+module.exports = (odm) => {
 
-const Message = new Schema({
-    sender: {
-        type: String,
-        required: true
-    },
+    let model = odm.models.Message
 
-    sent_time: {
-        type: Date,
-        required: true
+    if(!model) {
+        const schema = new odm.Schema({
+            id: { type: Number, required: true},
+            sender: { type: String, required: true},
+            sent_time: { type: String, required: true},
+            room_id: { type: Number, required: true}
+        })
+
+        model = odm.model('Message', schema)
     }
-})
 
-module.exports = mongoose.model('messages', Message)
+    return model
+}
