@@ -19,11 +19,7 @@ class RoomRepository {
             return room
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -35,11 +31,7 @@ class RoomRepository {
             return rooms
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -55,18 +47,24 @@ class RoomRepository {
             return savedRoom
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
-    /**
-     * TODO
-     * Implement method for bulk update of rooms
-     */
+   async updateMultiple(rooms) {
+       try {
+
+            let updatedRooms = []
+            for (room of rooms) {
+                const updatedRoom = await this.Room.findOneAndUpdate(room.id, room)
+                updatedRooms.push(updatedRoom)
+            }
+            return updatedRooms
+
+       } catch (err) {
+           return {error: err.message}
+       }
+   }
 
 
     async updateRoomMembers(roomId, users) {
@@ -79,11 +77,7 @@ class RoomRepository {
             return patchedRoom
         
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -95,11 +89,7 @@ class RoomRepository {
             return removedRoom
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 }

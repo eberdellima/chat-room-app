@@ -19,11 +19,7 @@ class MessageRepository {
             return message
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -41,19 +37,16 @@ class MessageRepository {
             return messages
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
 
-    async addMessage(sender, roomId) {
+    async addMessage(sender, roomId, messageId) {
         try {
 
             const newMessage = new this.Message({
+                id: messageId,
                 sender,
                 room_id: roomId,
                 sent_date: Date.now()
@@ -62,11 +55,7 @@ class MessageRepository {
             return savedMessage
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -78,11 +67,7 @@ class MessageRepository {
             return removedMessage
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -98,11 +83,7 @@ class MessageRepository {
             return exists
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -116,11 +97,7 @@ class MessageRepository {
             return patchedMessage
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -132,11 +109,7 @@ class MessageRepository {
             return deletedMessages
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 

@@ -19,4 +19,13 @@ const Logger = createLogger({
     ]
 })
 
-module.exports = Logger
+const logError = (msg, path) => {
+    Logger.log({
+        level: "Error",
+        message: msg,
+        timestamp: Date.now(),
+        path: path
+    })
+}
+
+module.exports = logError

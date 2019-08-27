@@ -19,11 +19,18 @@ class CounterRepository {
             return userCount
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
+        }
+    }
+
+
+    async setUserCount (userCount) {
+        try {
+
+            const userCount = await this.Counter.findOneAndUpdate( {}, {user_counter: userCount} )
+
+        } catch (err) {
+            return {error: err.message}
         }
     }
 
@@ -35,11 +42,19 @@ class CounterRepository {
             return messageCount
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
+        }
+    }
+
+
+    async setMessageCount (messageCount) {
+        try {
+
+            const newMessageCount = await this.Counter.findOneAndUpdate( {}, {message_counter: messageCount} )
+            return newMessageCount
+
+        } catch (err) {
+            return {error: err.message}
         }
     }
 
@@ -51,11 +66,19 @@ class CounterRepository {
             return roomCount
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
+        }
+    }
+
+
+    async setRoomCount (roomId) {
+        try {
+
+            const newRoomCount = await this.Counter.findOneAndUpdate( {}, {room_counter: roomId} )
+            return roomCount
+
+        } catch (err) {
+            return {error: err.message}
         }
     }
 

@@ -11,24 +11,21 @@ class UserRepository {
         UserRepository.instance = this
     }
 
-    async createUser(username, password, icon, id) {
+    async createUser({username, password, icon, id}) {
         try {
 
             const newUser = new this.User({
                 id,
                 username,
                 password,
-                icon
+                icon,
+                rooms: []
             })
             const savedUser = await newUser.save()
             return savedUser
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
@@ -40,11 +37,7 @@ class UserRepository {
             const patchedUser = await this.User.findOneAndUpdate(query, data)
             return patchedUser
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     } 
 
@@ -56,11 +49,19 @@ class UserRepository {
             return user
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
+        }
+    }
+
+
+    async getUserByUsername(username) {
+        try {
+
+            const user = await this.User.find({ username })
+            return user
+
+        } catch (err) {
+            return { error: err.message }
         }
     }
 
@@ -72,11 +73,7 @@ class UserRepository {
             return users
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            {error: err.message}
         }
     }
 
@@ -91,19 +88,25 @@ class UserRepository {
             return patchedUser
 
         } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
         }
     }
 
 
-     /**
-     * TODO
-     * Implement method for bulk update of rooms
-     */
+    async updateMultiple(users) {
+        try {
+
+            let updatedUsers = []
+            for(user of users) {
+                const updatedUser = await User.findOneAndUpdate(user.id, user)
+                updatedUsers.push(updatedUser)
+            }
+            return updatedUsers
+
+        } catch (err) {
+            return {error: err.message}
+        }
+    }
 
      
      async removeUser(userId) {
@@ -113,11 +116,7 @@ class UserRepository {
             return removedUser
 
          } catch (err) {
-            return { logInfo: {
-                level: "Error",
-                message: err.message,
-                timestamp: Date.now()
-            }}
+            return {error: err.message}
          }
      }
 }
