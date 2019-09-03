@@ -1,15 +1,9 @@
-module.exports = (odm) => {
 
-    let model = odm.models.Room
+module.exports = (sequelize, DataTypes) => {
 
-    if (!model) {
-        const schema = new odm.Schema({
-            id: { type: Number, required: true},
-            members: { type: [String], required: true}
-        })
+    const Room = sequelize.define( "room", {
+        id: { type: DataTypes.INTEGER, allowNull: false }
+    }, { modelName: "room"})
 
-        model = odm.model('Room', schema)
-    }
-
-    return model
+    return Room
 }

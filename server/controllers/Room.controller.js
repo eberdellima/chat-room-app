@@ -109,7 +109,7 @@ class RoomController {
     async get(req, res) {
         try {
 
-            const roomId = req.body.roomId
+            const roomId = req.params.roomId
             let page = parseInt(req.params.page)
             
             if(isNaN(roomId)) {
@@ -161,7 +161,7 @@ class RoomController {
     async patch(req, res) {
         try {
 
-            const roomId = req.body.roomId
+            const roomId = req.params.roomId
             const userToRemove = req.body.userId
 
             if (isNaN(roomId)) {
@@ -229,7 +229,7 @@ class RoomController {
     async remove(req, res) {
         try {
 
-            const roomId = req.body.roomId
+            const roomId = req.params.roomId
             const userId = req.body.userId
 
             if (isNaN(roomId)) {

@@ -2,28 +2,13 @@ const express = require('express')
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
+const router = require('./server/routes/index')
+const SocketEventHandler = require('./server/socket-events/index.js')
 
-// Testing if the socket works
-app.get('/', (req, res) => {
-    res.send('hello')
-})
+app.use('/', router)
+http.listen(3330, () => { console.log('working')})
 
 
 io.sockets.on('connection', function(socket) {
-    socket.on('username', function(username) {
-        socket.username = username;
-        io.emit('is_online', '<i>' + socket.username + ' join the chat..</i>');
-    });
-
-    socket.on('disconnect', function(username) {
-        io.emit('is_online', '<i>' + socket.username + ' left the chat..</i>');
-    })
-
-    socket.on('chat_message', function(message) {
-        io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
-    });
-
+    SocketEventHandler(socket)
 });
-
-
-const server = http.listen(3330, () => { console.log('working')})

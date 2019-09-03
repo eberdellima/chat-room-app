@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "seed": "DEBUG=mongo-seeding seed --drop-database --replace-id --db-name chat-room-app ./database/collections",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bhfreagra",
@@ -15,10 +16,14 @@
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "mongoose": "^5.6.9",
+    "pg": "^7.12.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.18.0",
     "socket.io": "^2.2.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "mongo-seeding": "^3.3.0",
     "nodemon": "^1.19.1"
   }
 }

@@ -1,17 +1,13 @@
-module.exports = (odm) => {
 
-    let model = odm.models.Message
+module.exports = (sequelize, DataTypes) => {
 
-    if(!model) {
-        const schema = new odm.Schema({
-            id: { type: Number, required: true},
-            sender: { type: String, required: true},
-            sent_time: { type: String, required: true},
-            room_id: { type: Number, required: true}
-        })
+    const Message = sequelize.define( "message", {
+        id: { type: DataTypes.INTEGER, allowNull: false },
+        sender: { type: DataTypes.STRING, allowNull: false },
+        sent_time: { type: DataTypes.DATE, allowNull: false },
+        room_id: { type: DataTypes.INTEGER, allowNull: false },
+        text: { type: DataTypes.TEXT, allowNull: false }
+    }, { modelName: "message"})
 
-        model = odm.model('Message', schema)
-    }
-
-    return model
+    return Message
 }

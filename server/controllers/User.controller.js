@@ -8,7 +8,9 @@ class UserController {
     async list(req, res) {
         try {
 
-            const { roomId, userId } = req.body
+            const userId = req.body.userId
+            let roomId = req.params.roomId
+            roomId = parseInt(roomId)
 
             if (isNan(roomId)) {
                 res.status(400).send("Invalid room number!")
@@ -66,7 +68,7 @@ class UserController {
     async get(req, res) {
         try {
 
-            const userId = req.body.userId
+            const userId = req.params.userId
 
             if (isNaN(userId)) {
                 res.status(400).send("Invalid user ID!")
@@ -141,7 +143,9 @@ class UserController {
     async patch(req, res) {
         try {
 
-            const { username, password, userId } = req.body
+            let userId = req.params.userId
+            userId = parseInt(userId)
+            const { username, password } = req.body
 
             if (!username || !password) {
                 res.status(400).send("Invalid username or password!")
@@ -211,7 +215,7 @@ class UserController {
     async remove() {
         try {
 
-            const userId = req.body.userID
+            const userId = req.params.userID
 
             if (isNaN(userId)) {
                 res.status(400).send("Invalid user ID")

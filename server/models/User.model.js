@@ -1,18 +1,12 @@
-module.exports = (odm) => {
-    
-    let model = odm.models.User
 
-    if(!model) {
-        const schema = new odm.Schema({
-            id: { type: Number, required: true},
-            username: { type: String, required: true},
-            password: { type: String, required: true},
-            icon: { type: String, required: true},
-            rooms: { type: [Number], required: true}
-        })
+module.exports = (sequelize, DataTypes) => {
 
-        model = odm.model('User', schema)
-    }
+    const User = sequelize.define( "user", {
+        id: { type: DataTypes.INTEGER, allowNull: false },
+        username: { type: DataTypes.STRING, allowNull: false },
+        password: { type: DataTypes.STRING, allowNull: false },
+        icon: { type: DataTypes.STRING, allowNull: false },
+    }, { modelName: "user"})
 
-    return model
+    return User
 }
