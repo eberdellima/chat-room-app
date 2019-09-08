@@ -1,9 +1,17 @@
-module.exports = (sequelize, DataTypes) => {
-    
-    const Counter = sequelize.define( 'counter', {
-        name: { type: DataTypes.STRING, allowNull: false },
-        value: { type: DataTypes.INTEGER, allowNull: false }
-    }, { modelName: "counter"})
 
-    return Counter
+module.exports = (odm) => {
+
+    let model = odm.models.Counter
+
+    if(!model) {
+
+        const schema = new odm.Schema({
+            name: { type: String, required: true },
+            value: { type: Number, required: true }
+        })
+
+        model = odm.model("Counter", schema)
+    }
+
+    return model
 }
