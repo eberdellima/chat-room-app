@@ -1,14 +1,13 @@
-const express = require('express')
-const app = express()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
-const router = require('./server/routes/index')
-const SocketEventHandler = require('./server/socket-events/index.js')
+const app = require('./boot/app')
+const port = process.env.PORT
+const { logError } = require('zippy-logger')
 
-app.use('/', router)
-http.listen(3330, () => { console.log('working')})
+const startServer = async () => {
+  try {
+    app.listen(port, () => { console.log(`Listening on port: ${port}`) })
+  } catch(err) {
+    logError({ message: err, path: 'Initializing app' })
+  }
+}
 
-
-io.sockets.on('connection', function(socket) {
-    SocketEventHandler(socket)
-});
+startServer()
