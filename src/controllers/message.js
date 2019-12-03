@@ -1,5 +1,6 @@
 const { logError } = require('zippy-logger')
 const { db } = require('../../boot/database')
+const { getIO } = require('../../boot/socket')
 
 class MessageController {
   
@@ -22,14 +23,20 @@ class MessageController {
         return { error: 'Not Found!', status: 404 }
       }
 
+      if(roomExists.participants.indexOf(user_id) === -1) {
+        return { error: 'Not part of this room', status: 409 }
+      }
+
       // Join socket to thread
 
       const limit = 20
-      const orderBy = { updated_at: 'asc'}
+      const skip = req.params.offset ? req.params.offset : 0
+      const orderBy = { updated_at: 'desc'}
 
       const messages = await db.Message.findAll({
         thread_id: roomExists.id
       })
+      .skip(skip)
       .limit(limit)
       .sort(orderBy)
 
@@ -59,7 +66,9 @@ class MessageController {
         return { error: 'Not Found!', status: 404 }
       }
 
-      // Join socket to thread
+      if(roomExists.participants.indexOf(user_id) === -1 ) {
+        return { error: 'Not part of this room!', status: 409 }
+      }
 
       const newMessage = new db.Message({
         thread_id: roomExists.id,
@@ -70,6 +79,8 @@ class MessageController {
       })
 
       await newMessage.save()
+
+      getIO().sockets.in(`room_${roomExists.id}`).emmit('new_message', JSON.stringify(newMessage))
 
       return { room: roomExists, message: newMessage }      
 

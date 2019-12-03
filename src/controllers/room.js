@@ -1,5 +1,6 @@
 const { logError } = require('zippy-logger')
 const { db } = require('../../boot/database')
+const { getIO } = require('../../boot/socket')
 
 class RoomController {
   
@@ -13,15 +14,15 @@ class RoomController {
 
       const userId = user_id
       const limit = 20
-      const orderBy = { updated_at: 'asc' }
+      const orderBy = { updated_at: 'desc' }
+      const skip = req.params.offset ? req.params.offset : 0
 
       let rooms = await db.Room.findAll({
         participants: userId
       })
+      .skip(skip)
       .limit(limit)
       .sort(orderBy)
-
-      //  Join socket to threads
 
       rooms = rooms.filter(room => room != null )
 
@@ -52,8 +53,6 @@ class RoomController {
         return { room: existingRoom }
       }
 
-      // Join socket to thread
-
       const newRoom = new db.Room({
         room_name, 
         participants,
@@ -61,7 +60,18 @@ class RoomController {
         created_at: new Date()
       })
 
-      return { room: newRoom }
+      const savedRoom = await newRoom.save()
+      const roomName = `room_${savedRoom.id}`
+
+      const io = getIO()
+
+      Object.keys(io.sockets.sockets).forEach(socket => {
+        if(participants.include(io.sockets.sockets[socket].userId)) {
+          io.sockets.sockets[socket].join(roomName)
+        }
+      })
+
+      return { room: savedRoom }
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, create, global catch' })
@@ -83,10 +93,12 @@ class RoomController {
         participants: user_id
       })
 
-      // Join socket to thread
-
       if(!room) {
         return { error: 'Not found!', status: 404 }
+      }
+
+      if(room.participants.indexOf(user_id) === -1) {
+        return { error: 'Not part of this room!', status: 409 }
       }
 
       return { room }
@@ -111,20 +123,56 @@ class RoomController {
         participants: user_id
       })
 
-      // Join socket to thread
-
       if(!room) {
         return { error: 'Not found!', status: 404 }
       }
 
       const index = room.participants.indexOf(user_id)
-      room.participants = room.participants.splice(index, 1)
-      await room.update({participatns: room.participants})
+      const updatedParticipants = room.participants.splice(index, 1)
+      const updatedRoom = await room.update({participants: updatedParticipants})
 
-      return {removed: true}
+      return { room: updatedRoom }
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, remove, global catch' })
+    }
+  }
+
+  async join(data) {
+    try {
+      const { roomId, participant_id, user_id } = data
+
+      const room = await db.Room.findOne({
+        id: roomId,
+        created_by_user: user_id
+      })
+
+      if(!room) {
+        return {error: 'Not found!', status: 404 }
+      }
+
+      let updatedParticipants = [...room.participants]
+
+      if(updatedParticipants.indexOf(user_id) !== -1) {
+        return { room }
+      }
+
+      updatedParticipants.push(user_id)
+      const updatedRoom = await room.update({ participants: updatedParticipants })
+
+      const roomName = `room_${updatedRoom.id}`
+      const io = getIO()
+      
+      Object.keys(io.sockets.sockets).forEach(socket => {
+        if(io.sockets.sockets[socket].userId === user_id) {
+          io.sockets.sockets[socket].join(roomName)
+        }
+      })
+
+      return { room: updatedRoom }
+
+    } catch(err) {
+      logError({message: err, path: 'Room controller, join, global catch'})
     }
   }
 

@@ -1,6 +1,5 @@
 ## To do:
 
-- set database connection
-- create models
-- create io connection
+- add return statement for global catches
+- add error handling in routes
 - backup messages temporarily
