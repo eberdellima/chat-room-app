@@ -7,6 +7,11 @@ router.get('/:user_id', async (req, res) => {
 
     const user_id = req.params.user_id
     const result = await new RoomController().index(user_id)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
+    
     res.send(result)
 
   } catch(err) {
@@ -25,6 +30,11 @@ router.post('/', async (req, res) => {
     }
 
     const result = await new RoomController().create(data)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
+
     res.send(result)
 
   } catch(err) {
@@ -42,6 +52,11 @@ router.get('/:user_id/:room_id', async (req, res) => {
     }
 
     const result = await new RoomController().get(data)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
+
     req.send(result)
 
   } catch(err) {
@@ -59,6 +74,11 @@ router.delete('/', async (req, res) => {
     }
 
     const result = await new RoomController().remove(data)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
+
     res.send(result)
 
   } catch(err) {

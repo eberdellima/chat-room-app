@@ -14,10 +14,17 @@ class MessageController {
 
       const { room_id, user_id } = data
 
-      const roomExists = await db.Room.findOne({
-        id: room_id,
-        participants: user_id
-      })
+      let roomExists = null
+
+      try {
+        roomExists = await db.Room.findOne({
+          id: room_id,
+          participants: user_id
+        })
+      } catch(err) {
+        logError({ message: err, path: 'Message controller, index, fetch room' })
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       if(!roomExists) {
         return { error: 'Not Found!', status: 404 }
@@ -27,23 +34,29 @@ class MessageController {
         return { error: 'Not part of this room', status: 409 }
       }
 
-      // Join socket to thread
-
       const limit = 20
       const skip = req.params.offset ? req.params.offset : 0
       const orderBy = { updated_at: 'desc'}
 
-      const messages = await db.Message.findAll({
-        thread_id: roomExists.id
-      })
-      .skip(skip)
-      .limit(limit)
-      .sort(orderBy)
+      let messages = []
+
+      try {
+        messages = await db.Message.findAll({
+          thread_id: roomExists.id
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(orderBy)
+      } catch(err) {
+        logError({ message: err, path: 'Message controller, index, fetch messages' })
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       return { room: roomExists, messages }
 
     } catch(err) {
       logError({ message: err, path: 'Message controllre, index, global catch' })
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 
@@ -57,10 +70,17 @@ class MessageController {
 
       const { room_id, user_id, body } = data
 
-      const roomExists = await db.Room.findOne({
-        id: room_id,
-        participants: user_id
-      })
+      let roomExists = null
+
+      try {
+        roomExists = await db.Room.findOne({
+          id: room_id,
+          participants: user_id
+        })
+      } catch(err) {
+        logError({ message: err, path: 'Message controller, create, fetch room' })
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       if(!roomExists) {
         return { error: 'Not Found!', status: 404 }
@@ -78,14 +98,24 @@ class MessageController {
         body
       })
 
-      await newMessage.save()
+      let savedMessage = {}
+
+      try {
+        
+        savedMessage = await newMessage.save()
+
+      } catch(err) {
+        logError({ message: err, path: 'Message controller, create, save message' })
+        return { error: 'Internal server error!', status: 500 }
+      }      
 
       getIO().sockets.in(`room_${roomExists.id}`).emmit('new_message', JSON.stringify(newMessage))
 
-      return { room: roomExists, message: newMessage }      
+      return { room: roomExists, message: savedMessage }      
 
     } catch(err) {
       logError({ message: err, path: 'Message controller, create, global catch' })
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 

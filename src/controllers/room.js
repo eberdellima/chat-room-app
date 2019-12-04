@@ -30,6 +30,7 @@ class RoomController {
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, index, global catch'})
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 
@@ -43,11 +44,18 @@ class RoomController {
 
       const { room_name, participants, created_by_user } = data
 
-      const existingRoom = await db.Room.findOne({
-        participants,
-        created_by_user,
-        room_name
-      })
+      let existingRoom = null
+
+      try {
+        existingRoom = await db.Room.findOne({
+          participants,
+          created_by_user,
+          room_name
+        })
+      } catch(err) {
+        logError({ message: err, path: 'Room controller, create, fetch room' })
+        return { error: "Internal server error!", status: 500}
+      }
 
       if(existingRoom) {
         return { room: existingRoom }
@@ -60,7 +68,15 @@ class RoomController {
         created_at: new Date()
       })
 
-      const savedRoom = await newRoom.save()
+      let savedRoom = {}
+
+      try {
+        savedRoom = await newRoom.save()
+      } catch(err) {
+        logError({ message: err, path: 'Room controller, create, save room' })
+        return { error: "Internal server error!", status: 500}
+      }
+      
       const roomName = `room_${savedRoom.id}`
 
       const io = getIO()
@@ -75,6 +91,7 @@ class RoomController {
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, create, global catch' })
+      return { error: "Internal server error!", status: 500}
     }
   }
 
@@ -105,6 +122,7 @@ class RoomController {
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, get, global catch' })
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 
@@ -118,10 +136,17 @@ class RoomController {
 
       const { room_id, user_id } = data
 
-      let room = await db.Room.findOne({
-        id: room_id,
-        participants: user_id
-      })
+      let room = null
+
+      try {
+        let room = await db.Room.findOne({
+          id: room_id,
+          participants: user_id
+        })
+      } catch(err) {
+        logError({ message: err, path: 'Room controller, remove, fetch room' })
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       if(!room) {
         return { error: 'Not found!', status: 404 }
@@ -129,12 +154,21 @@ class RoomController {
 
       const index = room.participants.indexOf(user_id)
       const updatedParticipants = room.participants.splice(index, 1)
-      const updatedRoom = await room.update({participants: updatedParticipants})
+
+      let updatedRoom = null
+
+      try {
+        updatedRoom = await room.update({participants: updatedParticipants})
+      } catch(err) {
+        logError({ message: err, path: 'Room controller, remove, update room' })
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       return { room: updatedRoom }
 
     } catch(err) {
       logError({ message: err, path: 'Room controller, remove, global catch' })
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 
@@ -142,10 +176,17 @@ class RoomController {
     try {
       const { roomId, participant_id, user_id } = data
 
-      const room = await db.Room.findOne({
-        id: roomId,
-        created_by_user: user_id
-      })
+      let room = null
+
+      try {
+        room = await db.Room.findOne({
+          id: roomId,
+          created_by_user: user_id
+        })
+      } catch(err) {
+        logError({message: err, path: 'Room controller, join, fetch room'})
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       if(!room) {
         return {error: 'Not found!', status: 404 }
@@ -158,7 +199,15 @@ class RoomController {
       }
 
       updatedParticipants.push(user_id)
-      const updatedRoom = await room.update({ participants: updatedParticipants })
+
+      let updatedRoom = null
+
+      try {
+        updatedRoom = await room.update({ participants: updatedParticipants })
+      } catch(err) {
+        logError({message: err, path: 'Room controller, join, update room'})
+        return { error: 'Internal server error!', status: 500 }
+      }
 
       const roomName = `room_${updatedRoom.id}`
       const io = getIO()
@@ -173,6 +222,7 @@ class RoomController {
 
     } catch(err) {
       logError({message: err, path: 'Room controller, join, global catch'})
+      return { error: 'Internal server error!', status: 500 }
     }
   }
 

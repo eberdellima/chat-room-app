@@ -11,6 +11,10 @@ router.get('/:user_id/:room_id', async (req, res) => {
     }
   
     const result = await new MessageController().index(data)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
   
     res.send(result)
 
@@ -29,6 +33,10 @@ router.post('/', async (req, res) => {
     }
 
     const result = await new MessageController().create(data)
+
+    if(result.error && result.status) {
+      res.status(result.status).send(result.error)
+    }
 
     res.send(result)
 
