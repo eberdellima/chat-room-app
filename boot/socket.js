@@ -3,7 +3,7 @@ let io = require('socket.io')
 
 const startSocket = (server) => {
   io = io(server)
-  new  WebSocket().start(io)
+  new WebSocket().start(io)
 }
 
 const getIO = () => {
